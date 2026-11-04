@@ -80,7 +80,7 @@ function SelectorAutores({ autores, onChange, error }) {
                 <p className="text-xs text-slate-500">{TIPOS_AUTOR[a.tipoAutor]}</p>
               </div>
               <label className="flex cursor-pointer items-center gap-1.5 text-xs text-slate-600">
-                <input type="checkbox" className="accent-naranja" checked={a.esAutorCorrespondencia} onChange={(e) => actualizar(i, { esAutorCorrespondencia: e.target.checked })} />
+                <input type="checkbox" className="checkbox" checked={a.esAutorCorrespondencia} onChange={(e) => actualizar(i, { esAutorCorrespondencia: e.target.checked })} />
                 <Mail className="h-3.5 w-3.5" /> Correspondencia
               </label>
               <div className="flex gap-0.5">
@@ -94,7 +94,7 @@ function SelectorAutores({ autores, onChange, error }) {
       )}
       <div className="flex flex-col gap-2 sm:flex-row">
         <div className="relative flex-1">
-          <input type="search" className={`input ${error ? 'border-red-400' : ''}`} placeholder="Buscar autor por nombre, apellido u ORCID (mín. 2 letras)"
+          <input type="search" className="input" aria-invalid={error ? true : undefined} placeholder="Buscar autor por nombre, apellido u ORCID (mín. 2 letras)"
             value={q} onChange={(e) => { setQ(e.target.value); setAbierto(true); }} onFocus={() => setAbierto(true)}
             onBlur={() => setTimeout(() => setAbierto(false), 150)} aria-label="Buscar autor" />
           {abierto && qDeb.trim().length >= 2 && data && (
@@ -218,7 +218,7 @@ function Archivos({ publicacionId, archivos, onCambio }) {
       <div className="rounded-lg border border-dashed border-slate-300 bg-fondo p-4">
         <div className="grid gap-3 sm:grid-cols-[1fr_180px]">
           <input ref={input} type="file" accept="application/pdf,image/jpeg,image/png,image/webp" onChange={(e) => setArchivo(e.target.files?.[0] ?? null)}
-            className="input file:mr-3 file:rounded-md file:border-0 file:bg-marino file:px-3 file:py-1 file:text-sm file:text-white" aria-label="Seleccionar archivo" />
+            className="input" aria-label="Seleccionar archivo" />
           <select className="input" value={tipoArchivo} onChange={(e) => setTipoArchivo(e.target.value)} aria-label="Tipo de archivo">
             <option value="pdf">PDF del artículo</option>
             <option value="portada">Portada (imagen)</option>
@@ -226,7 +226,7 @@ function Archivos({ publicacionId, archivos, onCambio }) {
           </select>
         </div>
         <label className="mt-3 flex cursor-pointer items-start gap-2 text-sm text-slate-600">
-          <input type="checkbox" className="mt-0.5 accent-naranja" checked={autorizado} onChange={(e) => setAutorizado(e.target.checked)} />
+          <input type="checkbox" className="checkbox mt-0.5" checked={autorizado} onChange={(e) => setAutorizado(e.target.checked)} />
           Se cuenta con autorización para su difusión pública (licencia abierta o permiso de la revista/autores).
         </label>
         <div className="mt-3 flex items-center justify-between gap-3">
@@ -266,7 +266,7 @@ export default function PublicacionForm() {
   useEffect(() => { if (pub) { setF(desdeApi(pub)); setSucio(false); } }, [pub]);
 
   const set = (k, v) => { setF((x) => ({ ...x, [k]: v })); setSucio(true); };
-  const inp = (k) => ({ id: `f-${k}`, className: `input ${errores[k] ? 'border-red-400' : ''}`, value: f[k], onChange: (e) => set(k, e.target.value) });
+  const inp = (k) => ({ id: `f-${k}`, className: 'input', 'aria-invalid': errores[k] ? true : undefined, value: f[k], onChange: (e) => set(k, e.target.value) });
 
   const verificarDuplicados = async () => {
     if (!f.titulo.trim() && !f.doi.trim()) return setDuplicados([]);
@@ -461,8 +461,8 @@ export default function PublicacionForm() {
             <Campo label="Enlace a la publicación original" error={errores.urlPublicacion}>
               <input type="url" placeholder="https://" {...inp('urlPublicacion')} />
             </Campo>
-            <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-700 sm:col-span-2">
-              <input type="checkbox" className="h-4 w-4 accent-naranja" checked={f.destacado} onChange={(e) => set('destacado', e.target.checked)} />
+            <label className="flex cursor-pointer items-center gap-3 text-sm text-slate-700 sm:col-span-2">
+              <input type="checkbox" role="switch" className="switch" checked={f.destacado} onChange={(e) => set('destacado', e.target.checked)} />
               Mostrar como artículo destacado en la página de inicio
             </label>
           </div>
