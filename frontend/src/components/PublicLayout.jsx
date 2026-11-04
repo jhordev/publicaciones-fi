@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Link, NavLink, Outlet } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { LayoutDashboard, LogIn, Menu, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
+import TransicionPagina from './TransicionPagina.jsx';
 
 const logo = `${import.meta.env.BASE_URL}logo-ucss.png`;
 
@@ -91,7 +92,7 @@ export default function PublicLayout() {
       </a>
       <Header />
       <main id="contenido" className="flex-1">
-        <Outlet />
+        <TransicionPagina />
       </main>
       <Footer />
     </div>

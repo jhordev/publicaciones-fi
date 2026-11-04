@@ -1,5 +1,5 @@
-import { Suspense, useState } from 'react';
-import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import {
   BarChart3, BookOpenText, ExternalLink, FileText, History, KeyRound, LayoutDashboard, Library, ListTree, LogOut, Menu, UserCog, Users, X,
 } from 'lucide-react';
@@ -7,6 +7,7 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import { api } from '../../api/client.js';
 import { Campo, Modal, Spinner } from '../../components/ui.jsx';
+import TransicionPagina from '../../components/TransicionPagina.jsx';
 
 const logo = `${import.meta.env.BASE_URL}logo-ucss.png`;
 
@@ -128,9 +129,7 @@ export default function AdminLayout() {
           </div>
         </header>
         <main className="flex-1 p-4 sm:p-6">
-          <Suspense fallback={<Spinner />}>
-            <Outlet />
-          </Suspense>
+          <TransicionPagina fallback={<Spinner />} />
         </main>
       </div>
       <CambiarPassword abierto={cambiarPwd} onCerrar={() => setCambiarPwd(false)} />
