@@ -14,6 +14,7 @@ import catalogosAdmin from './routes/admin/catalogos.js';
 import usuariosAdmin from './routes/admin/usuarios.js';
 import reportesAdmin from './routes/admin/reportes.js';
 import imagenesAdmin from './routes/admin/imagenes.js';
+import configuracionAdmin from './routes/admin/configuracion.js';
 
 const MySQLStore = MySQLStoreFactory(session);
 
@@ -87,14 +88,15 @@ export function crearApp() {
   admin.use(requireAuth);
   admin.use((_req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });
   admin.use(requireRol(ROLES.ADMIN, ROLES.EDITOR));
-  // Solo Administrador: usuarios, roles y bitácora
-  admin.use(['/usuarios', '/roles', '/bitacora'], requireRol(ROLES.ADMIN));
+  // Solo Administrador: usuarios, roles, bitácora y configuración
+  admin.use(['/usuarios', '/roles', '/bitacora', '/configuracion'], requireRol(ROLES.ADMIN));
   admin.use(imagenesAdmin);
   admin.use('/publicaciones', publicacionesAdmin);
   admin.use(archivosAdmin);
   admin.use(catalogosAdmin);
   admin.use(usuariosAdmin);
   admin.use(reportesAdmin);
+  admin.use(configuracionAdmin);
   api.use('/admin', admin);
 
   app.use(`${config.basePath}/api`, api);

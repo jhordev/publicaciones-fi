@@ -260,3 +260,12 @@ model Bitacora {
   @@index([createdAt])
   @@map("bitacora")
 }
+
+/// Ajustes generales del portal (clave → valor JSON). Los valores por defecto viven en src/lib/configuracion.js
+model Configuracion {
+  clave     String   @id @db.VarChar(100)
+  valor     Json
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("configuracion")
+}

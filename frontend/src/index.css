@@ -46,6 +46,7 @@
 /* Spinner que aparece con un pequeño retraso: si la carga es rápida, nunca se ve (sin parpadeo) */
 @theme {
   --animate-aparecer-tarde: aparecer 0.3s ease-out 0.25s both;
+  --animate-aparecer: aparecer 0.4s ease-out both;
 }
 @keyframes aparecer {
   from { opacity: 0; }

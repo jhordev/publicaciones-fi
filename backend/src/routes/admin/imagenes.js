@@ -1,20 +1,9 @@
 import { Router } from 'express';
-import multer from 'multer';
 import { prisma } from '../../lib/prisma.js';
 import { asyncH, HttpError, parseId, registrarBitacora } from '../../lib/utils.js';
-import { procesarImagen, eliminarImagen } from '../../lib/imagenes.js';
+import { procesarImagen, eliminarImagen, subidaImagen as upload } from '../../lib/imagenes.js';
 
 const router = Router();
-
-// La imagen se recibe en memoria (máx. 12 MB) y solo se guardan las versiones WebP optimizadas
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 12 * 1024 * 1024, files: 1 },
-  fileFilter: (_req, file, cb) => {
-    if (!file.mimetype.startsWith('image/')) return cb(new HttpError(400, 'Seleccione una imagen (JPG, PNG, WEBP o AVIF)'));
-    cb(null, true);
-  },
-});
 
 /**
  * Crea las rutas para subir/eliminar la imagen de una entidad.

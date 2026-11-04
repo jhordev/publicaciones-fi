@@ -3,18 +3,27 @@ import { prisma } from '../lib/prisma.js';
 import { asyncH, HttpError, paginacion, parseId } from '../lib/utils.js';
 import { construirFiltro, includeLista, includeDetalle, ORDENES, serializarLista, serializarDetalle } from '../lib/publicaciones.js';
 import { enviarArchivo } from '../lib/archivos.js';
+import { obtenerConfiguracion } from '../lib/configuracion.js';
 
 const router = Router();
 const PUBLICADA = { estado: 'publicado' };
 
-/** Indicadores generales del portal. */
-router.get('/estadisticas', asyncH(async (_req, res) => {
-  const [publicaciones, autores, revistas] = await Promise.all([
-    prisma.publicacion.count({ where: PUBLICADA }),
-    prisma.autor.count({ where: { publicaciones: { some: { publicacion: PUBLICADA } } } }),
-    prisma.revista.count({ where: { publicaciones: { some: PUBLICADA } } }),
-  ]);
-  res.json({ publicaciones, autores, revistas });
+/**
+ * Datos de la portada: imagen de fondo del hero y totales generales.
+ * Los totales solo se calculan y envían si están habilitados en Configuración.
+ */
+router.get('/portada', asyncH(async (_req, res) => {
+  const { mostrarTotalesHero, imagenHero } = await obtenerConfiguracion();
+  let totales = null;
+  if (mostrarTotalesHero) {
+    const [publicaciones, autores, revistas] = await Promise.all([
+      prisma.publicacion.count({ where: PUBLICADA }),
+      prisma.autor.count({ where: { publicaciones: { some: { publicacion: PUBLICADA } } } }),
+      prisma.revista.count({ where: { publicaciones: { some: PUBLICADA } } }),
+    ]);
+    totales = { publicaciones, autores, revistas };
+  }
+  res.json({ imagenHero, totales });
 }));
 
 /** Opciones para los filtros del catálogo (solo valores con publicaciones visibles). */

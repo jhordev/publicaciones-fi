@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import {
-  BarChart3, BookOpenText, ExternalLink, FileText, History, KeyRound, LayoutDashboard, Library, ListTree, LogOut, Menu, UserCog, Users, X,
+  BarChart3, BookOpenText, ExternalLink, FileText, History, KeyRound, LayoutDashboard, Library, ListTree, LogOut, Menu, Settings, UserCog, Users, X,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
@@ -20,6 +20,7 @@ const MENU = [
   { to: '/admin/reportes', label: 'Reportes', icono: BarChart3 },
   { to: '/admin/usuarios', label: 'Usuarios', icono: UserCog, admin: true },
   { to: '/admin/bitacora', label: 'Bitácora', icono: History, admin: true },
+  { to: '/admin/configuracion', label: 'Configuración', icono: Settings, admin: true },
 ];
 
 function CambiarPassword({ abierto, onCerrar }) {

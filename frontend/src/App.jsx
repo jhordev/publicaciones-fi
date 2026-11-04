@@ -20,6 +20,7 @@ const Catalogos = lazy(() => import('./pages/admin/Catalogos.jsx'));
 const Reportes = lazy(() => import('./pages/admin/Reportes.jsx'));
 const Usuarios = lazy(() => import('./pages/admin/Usuarios.jsx'));
 const Bitacora = lazy(() => import('./pages/admin/Bitacora.jsx'));
+const Configuracion = lazy(() => import('./pages/admin/Configuracion.jsx'));
 
 function RequiereSesion({ children, soloAdmin }) {
   const { user, cargando, esAdmin } = useAuth();
@@ -64,6 +65,7 @@ export default function App() {
           <Route path="reportes" element={<Reportes />} />
           <Route path="usuarios" element={<RequiereSesion soloAdmin><Usuarios /></RequiereSesion>} />
           <Route path="bitacora" element={<RequiereSesion soloAdmin><Bitacora /></RequiereSesion>} />
+          <Route path="configuracion" element={<RequiereSesion soloAdmin><Configuracion /></RequiereSesion>} />
           <Route path="*" element={<Navigate to="/admin" replace />} />
         </Route>
       </Routes>

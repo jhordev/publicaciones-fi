@@ -3,11 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, BookOpenText, Library, Search, Users } from 'lucide-react';
 import { useApi, useTitulo } from '../lib/hooks.js';
 import PublicacionCard from '../components/PublicacionCard.jsx';
+import HeroFondo from '../components/HeroFondo.jsx';
 import { Spinner, Vacio } from '../components/ui.jsx';
 
 function Indicador({ icono: Icono, valor, etiqueta }) {
   return (
-    <div className="flex items-center gap-4 rounded-xl bg-white/5 p-4 ring-1 ring-white/10 sm:p-5">
+    <div className="flex items-center gap-4 rounded-xl bg-white/5 p-4 ring-1 ring-white/10 backdrop-blur-sm sm:p-5">
       <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-naranja/15 text-naranja">
         <Icono className="h-5 w-5" />
       </span>
@@ -23,7 +24,8 @@ export default function Home() {
   useTitulo(null);
   const navigate = useNavigate();
   const [q, setQ] = useState('');
-  const { data: stats } = useApi('/public/estadisticas');
+  const { data: portada } = useApi('/public/portada');
+  const totales = portada?.totales;
   const { data: destacadas } = useApi('/public/publicaciones?destacado=1&limit=3');
   const { data: recientes, cargando } = useApi('/public/publicaciones?orden=registro&limit=6');
 
@@ -34,11 +36,10 @@ export default function Home() {
 
   return (
     <>
-      <section className="relative overflow-hidden bg-marino">
-        <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-naranja/20 blur-3xl" />
-        <div className="pointer-events-none absolute inset-0 opacity-[0.07]"
-          style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '22px 22px' }} />
-        <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
+      <section className="relative isolate overflow-hidden bg-marino">
+        {/* Imagen de fondo y overlay: se configuran en Admin → Configuración */}
+        <HeroFondo imagen={portada?.imagenHero} prioridad />
+        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
           <p className="text-sm font-semibold uppercase tracking-widest text-naranja">Facultad de Ingeniería · UCSS</p>
           <h1 className="mt-3 max-w-3xl font-serif text-3xl font-bold leading-tight text-white sm:text-5xl">
             Repositorio de Publicaciones Científicas
@@ -56,11 +57,14 @@ export default function Home() {
             </div>
             <button className="btn-primary h-12 px-6 text-base shadow-lg">Buscar</button>
           </form>
-          <div className="mt-10 grid gap-3 sm:grid-cols-3">
-            <Indicador icono={BookOpenText} valor={stats?.publicaciones} etiqueta="Publicaciones" />
-            <Indicador icono={Users} valor={stats?.autores} etiqueta="Autores" />
-            <Indicador icono={Library} valor={stats?.revistas} etiqueta="Revistas" />
-          </div>
+          {/* Se activa/desactiva desde Admin → Configuración */}
+          {totales && (
+            <div className="mt-10 grid animate-aparecer gap-3 sm:grid-cols-3">
+              <Indicador icono={BookOpenText} valor={totales.publicaciones} etiqueta="Publicaciones" />
+              <Indicador icono={Users} valor={totales.autores} etiqueta="Autores" />
+              <Indicador icono={Library} valor={totales.revistas} etiqueta="Revistas" />
+            </div>
+          )}
         </div>
       </section>
 

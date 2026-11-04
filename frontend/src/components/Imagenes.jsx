@@ -4,10 +4,10 @@ import { api, API_BASE } from '../api/client.js';
 import { useToast } from '../context/ToastContext.jsx';
 
 /** Tamaños generados por el servidor (deben coincidir con backend/src/lib/imagenes.js). */
-export const ANCHOS = { publicaciones: [640, 1280, 1920], autores: [96, 256, 512] };
+export const ANCHOS = { publicaciones: [640, 1280, 1920], autores: [96, 256, 512], portada: [768, 1280, 1920, 2560] };
 
 export const urlMedia = (tipo, id, ancho) => `${API_BASE}/media/${tipo}/${id}-${ancho}.webp`;
-const srcSet = (tipo, id) => ANCHOS[tipo].map((w) => `${urlMedia(tipo, id, w)} ${w}w`).join(', ');
+export const srcSet = (tipo, id) => ANCHOS[tipo].map((w) => `${urlMedia(tipo, id, w)} ${w}w`).join(', ');
 
 /**
  * Imagen principal de una publicación (16:9, WebP responsivo).
