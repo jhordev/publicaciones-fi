@@ -5,7 +5,7 @@ import { ESTADOS } from '../lib/format.js';
 
 export function Spinner({ texto = 'Cargando…', className = '' }) {
   return (
-    <div className={`flex items-center justify-center gap-2 py-12 text-sm text-slate-500 ${className}`} role="status">
+    <div className={`flex animate-aparecer-tarde items-center justify-center gap-2 py-12 text-sm text-slate-500 ${className}`} role="status">
       <Loader2 className="h-5 w-5 animate-spin text-naranja" /> {texto}
     </div>
   );
