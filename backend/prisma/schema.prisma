@@ -1,0 +1,262 @@
+// Esquema de datos — Repositorio de Publicaciones Científicas FI (UCSS)
+// Base de datos: publicaciones_fi (MySQL 8)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum EstadoRegistro {
+  activo
+  inactivo
+}
+
+enum TipoAutor {
+  estudiante
+  docente
+  egresado
+  externo
+}
+
+enum EstadoPublicacion {
+  borrador
+  revision
+  publicado
+  archivado
+}
+
+enum TipoArchivo {
+  pdf
+  portada
+  otro
+}
+
+model Rol {
+  id          Int       @id @default(autoincrement())
+  nombre      String    @unique @db.VarChar(50)
+  descripcion String?   @db.VarChar(255)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  usuarios    Usuario[]
+
+  @@map("roles")
+}
+
+model Usuario {
+  id            Int             @id @default(autoincrement())
+  nombres       String          @db.VarChar(100)
+  apellidos     String          @db.VarChar(100)
+  correo        String          @unique @db.VarChar(150)
+  passwordHash  String          @map("password_hash") @db.VarChar(255)
+  rolId         Int             @map("rol_id")
+  estado        EstadoRegistro  @default(activo)
+  ultimoAcceso  DateTime?       @map("ultimo_acceso")
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  rol           Rol             @relation(fields: [rolId], references: [id])
+  publicaciones Publicacion[]
+  bitacora      Bitacora[]
+
+  @@index([rolId])
+  @@map("usuarios")
+}
+
+model Programa {
+  id            Int            @id @default(autoincrement())
+  nombre        String         @unique @db.VarChar(150)
+  codigo        String?        @unique @db.VarChar(20)
+  descripcion   String?        @db.Text
+  estado        EstadoRegistro @default(activo)
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  autores       Autor[]
+  publicaciones Publicacion[]
+
+  @@map("programas")
+}
+
+model Autor {
+  id            Int                 @id @default(autoincrement())
+  nombres       String              @db.VarChar(100)
+  apellidos     String              @db.VarChar(100)
+  tipoAutor     TipoAutor           @map("tipo_autor")
+  correo        String?             @db.VarChar(150)
+  orcid         String?             @unique @db.VarChar(19)
+  institucion   String?             @db.VarChar(200)
+  programaId    Int?                @map("programa_id")
+  // Identificador base de la foto optimizada (WebP en varios tamaños)
+  foto          String?             @db.VarChar(64)
+  createdAt     DateTime            @default(now()) @map("created_at")
+  updatedAt     DateTime            @updatedAt @map("updated_at")
+  programa      Programa?           @relation(fields: [programaId], references: [id])
+  publicaciones PublicacionAutor[]
+
+  @@index([apellidos, nombres])
+  @@index([programaId])
+  @@map("autores")
+}
+
+model TipoPublicacion {
+  id            Int            @id @default(autoincrement())
+  nombre        String         @unique @db.VarChar(100)
+  descripcion   String?        @db.Text
+  estado        EstadoRegistro @default(activo)
+  publicaciones Publicacion[]
+
+  @@map("tipos_publicacion")
+}
+
+model Revista {
+  id              Int            @id @default(autoincrement())
+  nombre          String         @db.VarChar(255)
+  editorial       String?        @db.VarChar(200)
+  issnImpreso     String?        @map("issn_impreso") @db.VarChar(9)
+  issnElectronico String?        @map("issn_electronico") @db.VarChar(9)
+  pais            String?        @db.VarChar(100)
+  urlRevista      String?        @map("url_revista") @db.VarChar(500)
+  indexacion      String?        @db.VarChar(255)
+  descripcion     String?        @db.Text
+  estado          EstadoRegistro @default(activo)
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+  publicaciones   Publicacion[]
+
+  @@index([nombre])
+  @@map("revistas")
+}
+
+model Publicacion {
+  id                Int                          @id @default(autoincrement())
+  titulo            String                       @db.VarChar(500)
+  slug              String                       @unique @db.VarChar(191)
+  resumen           String?                      @db.Text
+  idioma            String                       @default("es") @db.VarChar(10)
+  tipoPublicacionId Int                          @map("tipo_publicacion_id")
+  revistaId         Int?                         @map("revista_id")
+  programaId        Int?                         @map("programa_id")
+  anioPublicacion   Int                          @map("anio_publicacion") @db.SmallInt
+  fechaPublicacion  DateTime?                    @map("fecha_publicacion") @db.Date
+  volumen           String?                      @db.VarChar(20)
+  numero            String?                      @db.VarChar(20)
+  paginas           String?                      @db.VarChar(30)
+  doi               String?                      @unique @db.VarChar(191)
+  urlPublicacion    String?                      @map("url_publicacion") @db.VarChar(500)
+  estado            EstadoPublicacion            @default(borrador)
+  destacado         Boolean                      @default(false)
+  // Identificador base de la imagen principal optimizada (WebP en varios tamaños)
+  imagen            String?                      @db.VarChar(64)
+  creadoPor         Int?                         @map("creado_por")
+  createdAt         DateTime                     @default(now()) @map("created_at")
+  updatedAt         DateTime                     @updatedAt @map("updated_at")
+  tipoPublicacion   TipoPublicacion              @relation(fields: [tipoPublicacionId], references: [id])
+  revista           Revista?                     @relation(fields: [revistaId], references: [id])
+  programa          Programa?                    @relation(fields: [programaId], references: [id])
+  creador           Usuario?                     @relation(fields: [creadoPor], references: [id], onDelete: SetNull)
+  autores           PublicacionAutor[]
+  palabrasClave     PublicacionPalabraClave[]
+  lineas            PublicacionLinea[]
+  archivos          ArchivoPublicacion[]
+
+  @@index([titulo])
+  @@index([anioPublicacion])
+  @@index([estado])
+  @@index([revistaId])
+  @@index([tipoPublicacionId])
+  @@index([programaId])
+  @@index([estado, anioPublicacion])
+  @@map("publicaciones")
+}
+
+model PublicacionAutor {
+  id                     Int         @id @default(autoincrement())
+  publicacionId          Int         @map("publicacion_id")
+  autorId                Int         @map("autor_id")
+  ordenAutoria           Int         @map("orden_autoria") @db.SmallInt
+  esAutorCorrespondencia Boolean     @default(false) @map("es_autor_correspondencia")
+  publicacion            Publicacion @relation(fields: [publicacionId], references: [id], onDelete: Cascade)
+  autor                  Autor       @relation(fields: [autorId], references: [id])
+
+  @@unique([publicacionId, autorId])
+  @@index([autorId])
+  @@map("publicaciones_autores")
+}
+
+model PalabraClave {
+  id            Int                       @id @default(autoincrement())
+  nombre        String                    @db.VarChar(100)
+  slug          String                    @unique @db.VarChar(120)
+  publicaciones PublicacionPalabraClave[]
+
+  @@index([nombre])
+  @@map("palabras_clave")
+}
+
+model PublicacionPalabraClave {
+  publicacionId  Int          @map("publicacion_id")
+  palabraClaveId Int          @map("palabra_clave_id")
+  publicacion    Publicacion  @relation(fields: [publicacionId], references: [id], onDelete: Cascade)
+  palabraClave   PalabraClave @relation(fields: [palabraClaveId], references: [id])
+
+  @@id([publicacionId, palabraClaveId])
+  @@index([palabraClaveId])
+  @@map("publicaciones_palabras_clave")
+}
+
+model LineaInvestigacion {
+  id            Int                @id @default(autoincrement())
+  nombre        String             @unique @db.VarChar(200)
+  descripcion   String?            @db.Text
+  estado        EstadoRegistro     @default(activo)
+  publicaciones PublicacionLinea[]
+
+  @@map("lineas_investigacion")
+}
+
+model PublicacionLinea {
+  publicacionId Int                @map("publicacion_id")
+  lineaId       Int                @map("linea_id")
+  publicacion   Publicacion        @relation(fields: [publicacionId], references: [id], onDelete: Cascade)
+  linea         LineaInvestigacion @relation(fields: [lineaId], references: [id])
+
+  @@id([publicacionId, lineaId])
+  @@index([lineaId])
+  @@map("publicaciones_lineas")
+}
+
+model ArchivoPublicacion {
+  id                Int         @id @default(autoincrement())
+  publicacionId     Int         @map("publicacion_id")
+  nombreOriginal    String      @map("nombre_original") @db.VarChar(255)
+  rutaArchivo       String      @map("ruta_archivo") @db.VarChar(255)
+  tipoMime          String      @map("tipo_mime") @db.VarChar(100)
+  tamano            Int
+  tipoArchivo       TipoArchivo @default(pdf) @map("tipo_archivo")
+  // Solo se muestra al público cuando existe autorización de difusión
+  autorizadoPublico Boolean     @default(false) @map("autorizado_publico")
+  createdAt         DateTime    @default(now()) @map("created_at")
+  publicacion       Publicacion @relation(fields: [publicacionId], references: [id], onDelete: Cascade)
+
+  @@index([publicacionId])
+  @@map("archivos_publicacion")
+}
+
+model Bitacora {
+  id         Int      @id @default(autoincrement())
+  usuarioId  Int?     @map("usuario_id")
+  accion     String   @db.VarChar(50)
+  entidad    String   @db.VarChar(50)
+  registroId Int?     @map("registro_id")
+  detalle    String?  @db.Text
+  ip         String?  @db.VarChar(45)
+  createdAt  DateTime @default(now()) @map("created_at")
+  usuario    Usuario? @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+
+  @@index([usuarioId])
+  @@index([entidad, registroId])
+  @@index([createdAt])
+  @@map("bitacora")
+}

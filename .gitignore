@@ -1,0 +1,21 @@
+# Dependencias
+node_modules/
+
+# Secretos (usar backend/.env.example como plantilla)
+backend/.env
+.env
+
+# Build del frontend (se genera con `npm run build` en frontend/)
+/public/
+
+# Archivos subidos por los usuarios (PDFs, portadas y fotos): no se versionan
+storage/archivos/*
+!storage/archivos/.gitkeep
+storage/imagenes/**/*.webp
+
+# Varios
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
